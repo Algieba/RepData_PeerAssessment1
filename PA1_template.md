@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
@@ -13,8 +8,8 @@ output:
 Our data are stored in a zip file called "activity.zip". For load data and start
 the analisys we use "load.data()" and "unzip.file" functions:
 
-```{r}
 
+```r
 ################################################################################
 ### unzip.file(filename, selected_file, path, force_unzip)                   ### 
 ################################################################################
@@ -103,22 +98,49 @@ load.data <- function (zip_file,
 
 And call it in this way:
 
-```{r}
-activity_data <- load.data("activity.zip","activity.csv")
 
+```r
+activity_data <- load.data("activity.zip","activity.csv")
 ```
 
 These are a few observations from activity_data dataset
 
-```{r}
+
+```r
 head(activity_data,15)
+```
+
+```
+##    steps       date interval
+## 1     NA 2012-10-01        0
+## 2     NA 2012-10-01        5
+## 3     NA 2012-10-01       10
+## 4     NA 2012-10-01       15
+## 5     NA 2012-10-01       20
+## 6     NA 2012-10-01       25
+## 7     NA 2012-10-01       30
+## 8     NA 2012-10-01       35
+## 9     NA 2012-10-01       40
+## 10    NA 2012-10-01       45
+## 11    NA 2012-10-01       50
+## 12    NA 2012-10-01       55
+## 13    NA 2012-10-01      100
+## 14    NA 2012-10-01      105
+## 15    NA 2012-10-01      110
 ```
 ### Preprocesing data
 
 We note that intervals are encoded in a particular way. Look at rows 12 and 13.
 
-```{r}
+
+```r
 activity_data[c(12,13),]
+```
+
+```
+##    steps       date interval
+## 12    NA 2012-10-01       55
+## 13    NA 2012-10-01      100
 ```
 
 Interval from row 12 correspond with 00:55 hours and interval from row 13
@@ -127,17 +149,28 @@ to left) represent minutes and the next two digits represent hour.
 
 Other interesting thing is that interval counter start and finish every day.
 
-```{r}
+
+```r
 library(plyr)
 
 head(ddply(activity_data,.(date), summarise, max_interval = max(as.integer(interval)),
            min_interval = min(as.integer(interval))),5)
 ```
 
+```
+##         date max_interval min_interval
+## 1 2012-10-01         2355            0
+## 2 2012-10-02         2355            0
+## 3 2012-10-03         2355            0
+## 4 2012-10-04         2355            0
+## 5 2012-10-05         2355            0
+```
+
 The interval format is not the best for graphics, so we will change it to a time 
 format (HH:MM:SS). The "interval.to.time()" function performs this task.
 
-```{r}
+
+```r
 ################################################################################
 ### interval.to.time(interval_field)                                         ###
 ################################################################################
@@ -180,9 +213,18 @@ activity_data$interval <- interval.to.time (activity_data$interval)
 
 The new activity_data dataset is as follow:
 
-```{r}
-head(activity_data,5)
 
+```r
+head(activity_data,5)
+```
+
+```
+##   steps       date interval
+## 1    NA 2012-10-01    00:00
+## 2    NA 2012-10-01    00:05
+## 3    NA 2012-10-01    00:10
+## 4    NA 2012-10-01    00:15
+## 5    NA 2012-10-01    00:20
 ```
 
 ## What is mean total number of steps taken per day?
@@ -191,7 +233,8 @@ The function "steps.by.day.information()" give us information about steps total 
 day. This funcion show a histogram with steps total and return information about
 mean and median.
 
-```{r}
+
+```r
 ################################################################################
 ### steps.by.day.information(data)                                           ###
 ################################################################################
@@ -232,10 +275,11 @@ steps.by.day.information <- function(data){
 }
 
 statistics_by_day <- steps.by.day.information(activity_data)
-
 ```
 
-Steps total average is `r round(statistics_by_day[[1]],2)` and median is `r format(statistics_by_day[[2]], scientific = FALSE)` 
+![plot of chunk unnamed-chunk-8](./PA1_template_files/figure-html/unnamed-chunk-8.png) 
+
+Steps total average is 9354.23 and median is 10395 
   
   
 ## What is the average daily activity pattern?
@@ -246,8 +290,8 @@ For obtain information about interval and step across the days we will use
 number of steps taken for each 5 minutes interval across the days. And show us
 the 5 minutes interval with the highest activity.
 
-```{r}
 
+```r
 ################################################################################
 ### steps.by.interval.information(data)                                      ###
 ################################################################################
@@ -286,23 +330,24 @@ steps.by.interval.information <- function(data){
 }
 
 statistics_by_interval <- steps.by.interval.information(activity_data)
-
 ```
 
-The interval with the highest activity is "`r statistics_by_interval$interval`" with an average of
-`r statistics_by_interval$steps` steps.
+![plot of chunk unnamed-chunk-9](./PA1_template_files/figure-html/unnamed-chunk-9.png) 
+
+The interval with the highest activity is "08:35" with an average of
+206.17 steps.
 
 ## Imputing missing values
 
-```{r}
-NA_rows = sum(is.na(activity_data$steps))
 
+```r
+NA_rows = sum(is.na(activity_data$steps))
 ```
-The total number of rows with 'NA`s is: `r NA_rows`. To eliminate this NA values we will use the average value for that interval.
+The total number of rows with 'NA`s is: 2304. To eliminate this NA values we will use the average value for that interval.
 The function used for this task is "replace.na.steps()"
 
-```{r}
 
+```r
 ################################################################################
 ### replace.na.steps(data)                                                   ###
 ################################################################################
@@ -346,30 +391,34 @@ replace.na.steps <- function(data){
 repared_activity_data <- activity_data
 repared_activity_data$steps <- replace.na.steps(activity_data)
 ```
-```{r}
-NA_rows = sum(is.na(repared_activity_data$steps))
 
+```r
+NA_rows = sum(is.na(repared_activity_data$steps))
 ```
-The new data set "repared_activity_data" has now `r NA_rows` rows with 'NA`s.
+The new data set "repared_activity_data" has now 0 rows with 'NA`s.
 Now we can compare influence of "NA" values in the histogram, mean and median.
 
 #### With NA`s
 
-```{r}
-statistics_by_day <- steps.by.day.information(activity_data)
 
+```r
+statistics_by_day <- steps.by.day.information(activity_data)
 ```
+
+![plot of chunk unnamed-chunk-13](./PA1_template_files/figure-html/unnamed-chunk-13.png) 
 
 #### With out NA`s
 
-```{r}
-repared_statistics_by_day <- steps.by.day.information(repared_activity_data)
 
+```r
+repared_statistics_by_day <- steps.by.day.information(repared_activity_data)
 ```
 
-Steps total average is now `r format(round(repared_statistics_by_day[[1]],2),scientific = FALSE)` vesus
-`r round(statistics_by_day[[1]],2)` with NA's, median is now
-`r format(repared_statistics_by_day[[2]], scientific = FALSE)` versus `r format(statistics_by_day[[2]], scientific = FALSE)`  with NA's.
+![plot of chunk unnamed-chunk-14](./PA1_template_files/figure-html/unnamed-chunk-14.png) 
+
+Steps total average is now 10766 vesus
+9354.23 with NA's, median is now
+10762 versus 10395  with NA's.
 Replacing values "NA" translates into an increase in the values of the mean and median.
 
 
@@ -383,7 +432,8 @@ be this new field, its a factorial field with two posible values:
 
 For generate this new field whe will use "calculate.day.type()".
 
-```{r}
+
+```r
 ################################################################################
 ### calculate.day.type(dates)                                                ###
 ################################################################################
@@ -410,15 +460,23 @@ calculate.day.type <- function(dates){
 }
 
 repared_activity_data$daytype <- calculate.day.type(repared_activity_data$date)
-
 ```
 These are a few rows of the new dataset:
 
-```{r}
+
+```r
 repared_activity_data[c(1,1453,2025,3477),]
 ```
-```{r}
 
+```
+##      steps       date interval daytype
+## 1        2 2012-10-01    00:00 weekday
+## 1453     0 2012-10-06    01:00 weekend
+## 2025     0 2012-10-08    00:40 weekday
+## 3477     0 2012-10-13    01:40 weekend
+```
+
+```r
 library(lattice)
 
 ################################################################################
@@ -520,13 +578,16 @@ statistics_intervaldaytype <- steps.intervaldaytype.information(repared_activity
 
 This graph show the difference between weekday and weekend.
 
-```{r}
+
+```r
 statistics_intervaldaytype$graph
 ```
 
-On weekend days the interval with the highest activity is "`r statistics_intervaldaytype$max_interval[["weekend"]]`"
-with a mean of `r round(statistics_intervaldaytype$max_steps["weekend"],2)` steps. However
-on weekday days the highest activity interval is "`r statistics_intervaldaytype$max_interval[["weekday"]]`"
-with a mean of `r round(statistics_intervaldaytype$max_steps["weekday"],2)` steps.
+![plot of chunk unnamed-chunk-18](./PA1_template_files/figure-html/unnamed-chunk-18.png) 
+
+On weekend days the interval with the highest activity is "09:15"
+with a mean of 166.62 steps. However
+on weekday days the highest activity interval is "08:35"
+with a mean of 230.36 steps.
 
 
